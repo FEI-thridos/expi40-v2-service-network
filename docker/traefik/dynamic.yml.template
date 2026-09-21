@@ -1,0 +1,98 @@
+# dynamic.yml (dynamic configuration)
+tls:
+  certificates:
+    - certFile: "/certs/fullchain.cer"
+      keyFile: "/certs/cert.key"
+
+http:
+  middlewares:
+    jwt-auth:
+      forwardAuth:
+        address: "https://auth.${DUCKDNS_SUBDOMAIN}.duckdns.org/realms/myrealm/protocol/openid-connect/userinfo"
+        trustForwardHeader: true
+        authResponseHeaders:
+          - "X-Forwarded-User"
+
+  routers:
+    keycloak:
+      rule: "Host(`auth.${DUCKDNS_SUBDOMAIN}.duckdns.org`)"
+      service: keycloak-service
+      entryPoints:
+        - "websecure"
+      tls: {}
+    aas-env:
+      rule: "Host(`aas.${DUCKDNS_SUBDOMAIN}.duckdns.org`)"
+      service: aas-env-service
+      entryPoints:
+        - "websecure"
+      tls: {}
+    aas-registry:
+      rule: "Host(`aas-registry.${DUCKDNS_SUBDOMAIN}.duckdns.org`)"
+      service: aas-registry-service
+      entryPoints:
+        - "websecure"
+      tls: {}
+    sm-registry:
+      rule: "Host(`sm-registry.${DUCKDNS_SUBDOMAIN}.duckdns.org`)"
+      service: sm-registry-service
+      entryPoints:
+        - "websecure"
+      tls: {}
+    aas-discovery:
+      rule: "Host(`discovery.${DUCKDNS_SUBDOMAIN}.duckdns.org`)"
+      service: aas-discovery-service
+      entryPoints:
+        - "websecure"
+      tls: {}
+    aas-ui:
+      rule: "Host(`ui.${DUCKDNS_SUBDOMAIN}.duckdns.org`)"
+      service: aas-ui-service
+      entryPoints:
+        - "websecure"
+      tls: {}
+    dashboard-api:
+      rule: "Host(`dashboard.${DUCKDNS_SUBDOMAIN}.duckdns.org`)"
+      service: dashboard-api-service
+      entryPoints:
+        - "websecure"
+      tls: {}
+    llmchat-api:
+      rule: "Host(`llmchat.${DUCKDNS_SUBDOMAIN}.duckdns.org`)"
+      service: llmchat-api-service
+      entryPoints:
+        - "websecure"
+      tls: {}
+
+  services:
+    keycloak-service:
+      loadBalancer:
+        servers:
+          - url: "http://keycloak:8080"
+    aas-env-service:
+      loadBalancer:
+        servers:
+          - url: "http://aas-env:8081"
+    aas-registry-service:
+      loadBalancer:
+        servers:
+          - url: "http://aas-registry:8080"
+    sm-registry-service:
+      loadBalancer:
+        servers:
+          - url: "http://sm-registry:8080"
+    aas-discovery-service:
+      loadBalancer:
+        servers:
+          - url: "http://aas-discovery:8081"
+    aas-ui-service:
+      loadBalancer:
+        servers:
+          - url: "http://aas-web-ui:3000"
+    dashboard-api-service:
+      loadBalancer:
+        servers:
+          - url: "http://dashboard-api:8085"
+    llmchat-api-service:
+      loadBalancer:
+        servers:
+          - url: "http://llmchat-api:8080"

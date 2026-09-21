@@ -1,0 +1,69 @@
+{
+	"@context": [
+		"https://www.w3.org/2019/wot/td/v1",
+		{
+			"htv": "http://www.w3.org/2011/http#"
+		}
+	],
+	"title": "ThingDescriptionAssetInterfaceDescription",
+	"id": "www.example.com/ids/sm/XXXX_XXXX_XXXX_XXXX",
+	"version": { 
+		"instance": "1.0" 
+	},
+	"description": "Description of interface to interact with service according to Thing Description.",
+	"securityDefinitions": {
+		"nosec_sc": {
+			"scheme": "nosec"
+		}
+	},
+	"actions": {
+		"ask-question": {
+			"title": "Ask Question",
+			"description": "Action to ask LLM a question.",
+			"idempotent": false,
+			"synchronous": false,
+			"forms": [
+				{
+					"op": ["invokeaction"],
+					"href": "https://llmchat.expi40.duckdns.org/api/ask",
+					"contentType": "application/json",
+					"htv:methodName": "POST",
+					"security": "nosec_sc"
+				}
+			],
+			"input": {
+				"type": "object",
+				"properties": {
+					"question": {
+						"type": "string",
+						"description": "Question to be asked.",
+						"maxLength": "500"
+					},
+					"short-id-aas": {
+						"type": "string",
+						"description": "ShortId of AAS context.",
+						"maxLength": "256"
+					}
+				},
+				"required": [
+					"question",
+					"short-id-aas"
+				]
+			},
+			"output": {
+				"type": "object",
+				"readOnly": true,
+				"properties": {
+					"answer": {
+						"type": "string",
+						"description": "Answer to the asked question."
+					},
+					"status": {
+						"type": "string",
+						"description": "Status of response generation."
+					}
+				}
+			}
+		}
+	}
+}

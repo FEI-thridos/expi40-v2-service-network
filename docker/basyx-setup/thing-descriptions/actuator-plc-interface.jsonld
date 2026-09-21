@@ -1,0 +1,67 @@
+{
+  "@context": [
+    "https://www.w3.org/2019/wot/td/v1",
+    {
+      "mqv": "http://www.example.org/2024/mqtt-binding#",
+      "opc": "https://example.com/2025/wot/opcua#"
+    }
+  ],
+  "title": "ThingDescriptionAssetInterfaceDescription",
+  "id": "www.example.com/ids/sm/XXXX_XXXX_XXXX_XXXX",
+  "version": { 
+  	"instance": "1.0" 
+  },
+  "description": "Description of interface to interact with asset according to Thing Description.",
+  "securityDefinitions": {
+    "auto_sc": { "scheme": "auto" }
+  },
+  "properties": {
+    "is-running": {
+      "title": "Is Running",
+      "description": "Boolean value indicating whether the actuator is active.",
+      "type": "boolean",
+      "observable": true,
+
+      "forms": [
+		{
+          "href": "opc.tcp://192.168.0.101:1885",
+          "op": ["writeproperty", "observeproperty", "unobserveproperty"],
+          "contentType": "application/opcua+json",
+
+          "opc:serverInterface": "PlcOpcUaServer",
+          "opc:nodeId": "ns=4;i=6",
+          "opc:publishingInterval": "100",
+          "opc:securityPolicy": "None",
+          "opc:userTokenType": "Anonymous",
+
+          "description": "Observes (and writes) the value of the Node of PLC OPC UA server. Used by Unity server instance.",
+          "security": "auto_sc"
+        }
+      ]
+    }
+  },
+  "events": {
+	"is-running": {
+      "title": "Is Running",
+      "description": "Boolean value indicating whether the actuator is active.",
+      "data": {
+        "type": "boolean"
+      },
+
+      "forms": [
+        {
+          "href": "mqtt://localhost:1883",
+          "op": ["subscribeevent", "unsubscribeevent"],          
+          "contentType": "application/json",
+
+          "mqv:controlPacket": "subscribe",
+          "mqv:topic": "plc/output",
+          "mqv:messageFilter": "Messages[0].Payload.PublishedDataSet1[0].Body",
+
+          "description": "Definition of MQTT subsciption (topic and message filter) for 'is-running' property. Used by Unity client instances.",
+          "security": "auto_sc"
+        }
+      ]
+    }
+  }
+}

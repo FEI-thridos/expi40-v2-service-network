@@ -1,0 +1,462 @@
+name: expi40-service-network
+
+networks:
+  app-network:
+  
+volumes:
+  pgdata:
+  seqdata:
+  mongodbdata:
+  weaviatedata:
+  influxdbdata:
+  ollamadata:
+  keycloakdata:
+
+services:
+  coredns:
+    container_name: coredns-${ENVIRONMENT}
+    image: coredns/coredns:1.12.0
+    ports:
+      - "${COREDNS_PORT}:53/udp"
+    volumes:
+      - ./coredns/Corefile:/Corefile:ro
+    command: -conf /Corefile
+    profiles: [production]
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  traefik:
+    container_name: traefik-${ENVIRONMENT}
+    image: traefik:v3.6.7
+    ports:
+      - "${TRAEFIK_PORT}:443" # HTTPS
+      - "${TRAEFIK_DASHBOARD_PORT}:8080" # Dashboard (optional)
+    volumes:
+      - ./powershell/certs:/certs:ro # Mount certificates read-only
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro # Static config
+      - ./traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro # Dynamic config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command:
+      - "--configFile=/etc/traefik/traefik.yml" # Load static config
+    restart: unless-stopped
+    networks:
+      - app-network
+    depends_on:
+      - otel-collector
+    healthcheck:
+      test: ["CMD", "netstat", "-tuln", "|", "grep", ":${TRAEFIK_PORT}"] # Check if port ${TRAEFIK_PORT} is open
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      
+  keycloak:
+    container_name: keycloak-${ENVIRONMENT}
+    image: quay.io/keycloak/keycloak:26.0
+    environment:
+      KC_PROXY_ADDRESS_FORWARDING: "true"
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME: https://auth.${DUCKDNS_SUBDOMAIN}.duckdns.org
+      KC_HTTP_ENABLED: "true"
+      KC_HTTPS_ENABLED: "false"
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak?ssl=allow
+      KC_DB_USERNAME: ${KC_DB_USERNAME}
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD}
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD}
+    expose:
+      - "8080" # HTTP (internal)
+    volumes:
+      - keycloakdata:/opt/keycloak/data
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+    command:
+      - "start"
+      - "--import-realm"
+    restart: unless-stopped
+    networks:
+      - app-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    container_name: postgres-${ENVIRONMENT}
+    image: postgres:17
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=postgresadmin
+      - POSTGRES_MULTIPLE_DATABASES=${PG_KC_DB}:${PG_KC_USER}:${PG_KC_PASSWORD},${PG_LLM_DB}:${PG_LLM_USER}:${PG_LLM_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    # ports:
+    #   - "${POSTGRES_PORT}:5432"
+    restart: unless-stopped
+    networks:
+      - app-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U admin']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+        
+  otel-collector:
+    container_name: otel-collector-${ENVIRONMENT}
+    image: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.120.0
+    volumes:
+      - ./open-telemetry/otel-config.yaml:/etc/otelcol/config.yaml:ro
+      - ./open-telemetry/logs:/var/log/otel
+    command:
+      - "--config=/etc/otelcol/config.yaml"
+    expose:
+      - "4318" # HTTP OTLP receiver
+      - "4317" # gRPC OTLP receiver
+    restart: unless-stopped
+    networks:
+      - app-network
+    depends_on:
+      jaeger:
+        condition: service_started
+      
+  prometheus:
+    container_name: prometheus-${ENVIRONMENT}
+    image: quay.io/prometheus/prometheus:v3.2.0
+    command:
+      - --web.console.templates=/etc/prometheus/consoles
+      - --web.console.libraries=/etc/prometheus/console_libraries
+      - --storage.tsdb.retention.time=1h
+      - --config.file=/etc/prometheus/prometheus-config.yaml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+      - --web.route-prefix=/
+      - --web.enable-otlp-receiver
+      - --enable-feature=exemplar-storage
+    volumes:
+      - ./prometheus/prometheus-config.yaml:/etc/prometheus/prometheus-config.yaml:ro
+    deploy:
+      resources:
+        limits:
+          memory: 300M
+    restart: unless-stopped
+    networks:
+      - app-network
+    # ports:
+    #   - "${PROMETHEUS_PORT}:9090"
+      
+  jaeger:
+    container_name: jaeger-${ENVIRONMENT}
+    image: jaegertracing/all-in-one:1.66.0
+    command:
+      - "--memory.max-traces=25000"
+      - "--query.base-path=/jaeger/ui"
+      - "--prometheus.server-url=http://prometheus:9090"
+      - "--prometheus.query.normalize-calls=true"
+      - "--prometheus.query.normalize-duration=true"
+    deploy:
+      resources:
+        limits:
+          memory: 1200M
+    environment:
+      - METRICS_STORAGE_TYPE=prometheus
+    # ports:
+    #   - "${JAEGER_PORT}:16686"  # Jaeger UI
+    expose:
+      - "4317"  # gRPC ingestion
+    restart: unless-stopped
+    networks:
+      - app-network
+    depends_on:
+      - prometheus
+  
+  mongo:
+    container_name: mongo-${ENVIRONMENT}
+    image: mongo:5.0.10
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    ports:
+      - "${MONGO_PORT}:27017"
+    volumes:
+      - mongodbdata:/data/db
+    restart: unless-stopped
+    networks:
+      - app-network
+    healthcheck:
+      test: mongo
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      
+  mosquitto:
+    container_name: mosquitto-${ENVIRONMENT}
+    image: eclipse-mosquitto:2.0.15
+    ports:
+      - "${MOSQUITTO_PORT}:1883"
+    volumes:
+      - ./mosquitto:/mosquitto
+      - ./mosquitto/entrypoint.sh:/entrypoint.sh
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+    restart: unless-stopped
+    networks:
+      - app-network
+    environment:
+      - MOSQUITTO_ADMIN_USER=${MOSQUITTO_ADMIN_USER}
+      - MOSQUITTO_ADMIN_PASSWORD=${MOSQUITTO_ADMIN_PASSWORD}
+      - MOSQUITTO_PLC_USER=${MOSQUITTO_PLC_USER}
+      - MOSQUITTO_PLC_PASSWORD=${MOSQUITTO_PLC_PASSWORD}
+      - MOSQUITTO_CLIENT_USER=${MOSQUITTO_CLIENT_USER}
+      - MOSQUITTO_CLIENT_PASSWORD=${MOSQUITTO_CLIENT_PASSWORD}
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - mosquitto_sub -p 1883 -t 'topic' -u "$MOSQUITTO_ADMIN_USER" -P "$MOSQUITTO_ADMIN_PASSWORD" -C 1 -E -i probe -W 3
+      interval: 5s
+      timeout: 10s
+      start_period: 1s
+      retries: 3
+      
+  influxdb:
+    container_name: influxdb-${ENVIRONMENT}
+    image: influxdb:2
+    ports:
+      - "${INFLUX_PORT}:8086"
+    volumes:
+      - influxdbdata:/var/lib/influxdb2
+      - ./influxdb/config/influx-config:/etc/influxdb2/influx-config
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=${DOCKER_INFLUXDB_INIT_MODE}
+      - DOCKER_INFLUXDB_INIT_USERNAME=${DOCKER_INFLUXDB_INIT_USERNAME}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${DOCKER_INFLUXDB_INIT_PASSWORD}
+      - DOCKER_INFLUXDB_INIT_ORG=${DOCKER_INFLUXDB_INIT_ORG}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${DOCKER_INFLUXDB_INIT_BUCKET}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${DOCKER_INFLUXDB_INIT_ADMIN_TOKEN}
+    restart: unless-stopped
+    networks:
+      - app-network
+      
+  telegraf:
+    container_name: telegraf-${ENVIRONMENT}
+    image: telegraf:1.29.1
+    volumes:
+      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    hostname: basyx_host
+    restart: unless-stopped
+    networks:
+      - app-network
+    depends_on:
+      - influxdb
+      
+  aas-env:
+    container_name: aas-env-${ENVIRONMENT}
+    image: eclipsebasyx/aas-environment:2.0.0-SNAPSHOT-3250058
+    environment:
+      - SERVER_PORT=8081
+    volumes:
+      - ./basyx-setup/aas:/application/aas
+      - ./basyx-setup/basyx/aas-env.properties:/application/application.properties:ro
+    expose:
+      - "8081"
+    restart: unless-stopped
+    networks:
+      - app-network
+    depends_on:
+      aas-registry:
+        condition: service_healthy
+      sm-registry:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+      mosquitto:
+        condition: service_healthy
+
+  aas-registry:
+    container_name: aas-registry-${ENVIRONMENT}
+    image: eclipsebasyx/aas-registry-log-mongodb:2.0.0-SNAPSHOT-3250058
+    environment:
+      - SERVER_PORT=8080
+    expose:
+      - "8080"
+    volumes:
+      - ./basyx-setup/basyx/aas-registry.yml:/workspace/config/application.yml:ro
+    restart: unless-stopped
+    networks:
+      - app-network
+    depends_on:
+      mongo:
+        condition: service_healthy
+      traefik:
+        condition: service_healthy
+
+  sm-registry:
+    container_name: sm-registry-${ENVIRONMENT}
+    image: eclipsebasyx/submodel-registry-log-mongodb:2.0.0-SNAPSHOT-3250058
+    environment:
+      - SERVER_PORT=8080
+    expose:
+      - "8080"
+    volumes:
+      - ./basyx-setup/basyx/sm-registry.yml:/workspace/config/application.yml:ro
+    restart: unless-stopped
+    networks:
+      - app-network
+    depends_on:
+      mongo:
+        condition: service_healthy
+      traefik:
+        condition: service_healthy
+     
+  aas-discovery:
+    container_name: aas-discovery-${ENVIRONMENT}
+    image: eclipsebasyx/aas-discovery:2.0.0-SNAPSHOT-3250058
+    environment:
+      - SERVER_PORT=8081
+    expose:
+      - "8081"
+    volumes:
+      - ./basyx-setup/basyx/aas-discovery.properties:/application/application.properties:ro
+    restart: unless-stopped
+    networks:
+      - app-network
+    depends_on:
+      mongo:
+        condition: service_healthy
+      traefik:
+        condition: service_healthy
+        
+  aas-web-ui:
+    container_name: aas-ui-${ENVIRONMENT}
+    image: eclipsebasyx/aas-gui:SNAPSHOT-eeb1b58
+    environment:
+      AAS_REGISTRY_PATH: https://aas-registry.${DUCKDNS_SUBDOMAIN}.duckdns.org/shell-descriptors
+      SUBMODEL_REGISTRY_PATH: https://sm-registry.${DUCKDNS_SUBDOMAIN}.duckdns.org/submodel-descriptors
+      AAS_REPO_PATH: https://aas.${DUCKDNS_SUBDOMAIN}.duckdns.org/shells
+      SUBMODEL_REPO_PATH: https://aas.${DUCKDNS_SUBDOMAIN}.duckdns.org/submodels
+      CD_REPO_PATH: https://aas.${DUCKDNS_SUBDOMAIN}.duckdns.org/concept-descriptions
+      AAS_DISCOVERY_PATH: https://discovery.${DUCKDNS_SUBDOMAIN}.duckdns.org/lookup/shells
+      DASHBOARD_SERVICE_PATH: https://dashboard.${DUCKDNS_SUBDOMAIN}.duckdns.org/api/elements
+      KEYCLOAK_URL: https://auth.${DUCKDNS_SUBDOMAIN}.duckdns.org
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
+      INFLUXDB_TOKEN: ${DOCKER_INFLUXDB_INIT_ADMIN_TOKEN}
+    expose:
+      - "3000"
+    restart: unless-stopped
+    networks:
+      - app-network
+    depends_on:
+      aas-env:
+        condition: service_healthy
+        
+  dashboard-api:
+    container_name: dashboard-api-${ENVIRONMENT}
+    image: aaronzi/basyx-dashboard-api:SNAPSHOT_02
+    expose:
+      - "8085"
+    volumes:
+      - ./basyx-setup/basyx/aas-dashboard.yml:/application.yml:ro
+    restart: unless-stopped
+    networks:
+      - app-network
+    depends_on:
+      mongo:
+        condition: service_healthy
+      traefik:
+        condition: service_healthy
+
+  databridge:
+    container_name: databridge-${ENVIRONMENT}
+    image: eclipsebasyx/databridge:1.0.0-SNAPSHOT
+    volumes:
+      - ./basyx-setup/databridge:/usr/share/config
+    networks:
+      - app-network
+    depends_on:
+      - mosquitto
+      - aas-env
+    restart: unless-stopped
+
+  llmchat-api:
+    container_name: llmchat-api-${ENVIRONMENT}
+    image: ${DOCKER_REGISTRY-}llmchatapi:${ENVIRONMENT}
+    build:
+      context: ..
+      dockerfile: backend/src/api/LlmChat.API/Dockerfile
+    restart: unless-stopped
+    networks:
+      - app-network
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ENVIRONMENT}
+      - ASPNETCORE_HTTP_PORTS=8080
+    depends_on:
+      ollama:
+        condition: service_started
+      weaviate:
+        condition: service_started
+      seq:
+        condition: service_healthy
+
+  seq:
+    restart: unless-stopped
+    container_name: seq-${ENVIRONMENT}
+    image: ${DOCKER_REGISTRY-}seq:expi40
+    build:
+      context: .
+      dockerfile: seq/Dockerfile
+    networks:
+      - app-network
+    expose:
+      - 5341
+    # ports:
+    #   - ${SEQ_PORT}:80
+    volumes:
+      - seqdata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
+      interval: 5s
+      timeout: 10s
+      start_period: 10s
+      retries: 10
+        
+  ollama:
+    container_name: ollama-${ENVIRONMENT}
+    image: ollama/ollama:0.12.11
+    volumes:
+      - ollamadata:/root/.ollama
+      - ./llm/modelfiles:/modelfiles
+      - ./llm/entrypoint.sh:/entrypoint.sh:ro
+    environment:
+      - OLLAMA_NUM_PARALLEL=4
+      - OLLAMA_MAX_LOADED_MODELS=3
+    # ports:
+    #   - "${OLLAMA_PORT}:11434"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+    restart: unless-stopped
+    networks:
+      - app-network
+    entrypoint: [ "/usr/bin/bash", "/entrypoint.sh" ]
+    
+  weaviate:
+    container_name: weaviate-${ENVIRONMENT}
+    image: semitechnologies/weaviate:1.32.16-eca8a3c.amd64
+    expose:
+      - "50051" # gRPC (internal)
+    # ports:
+    #   - "${WEAVIATE_HTTP_PORT}:8080"
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
+      PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
+      DEFAULT_VECTORIZER_MODULE: "none"
+      RAFT_ENABLE_ONE_NODE_RECOVERY: true
+    volumes:
+      - weaviatedata:/var/lib/weaviate
+    restart: unless-stopped
+    networks:
+      - app-network

@@ -1,0 +1,33 @@
+# traefik.yml (static configuration)
+entryPoints:
+  websecure:
+    address: ":443"
+
+providers:
+  file:
+    filename: "/etc/traefik/dynamic.yml"  # Points to dynamic config
+  docker:
+    exposedByDefault: false
+
+api:
+  dashboard: true
+  insecure: true  # Dashboard on :8080
+
+# Enable experimental OpenTelemetry logging
+experimental:
+  otlpLogs: true
+
+metrics:
+  otlp:
+    http:
+      endpoint: "http://otel-collector:4318/v1/metrics"  # Collector HTTP endpoint
+
+tracing:
+  otlp:
+    http:
+      endpoint: "http://otel-collector:4318/v1/traces"  # Collector HTTP endpoint
+
+accessLog:
+  otlp:
+    http:
+      endpoint: "http://otel-collector:4318/v1/logs"  # Collector HTTP endpoint

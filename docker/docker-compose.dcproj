@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" Sdk="Microsoft.Docker.Sdk">
+  <PropertyGroup Label="Globals">
+    <ProjectVersion>2.1</ProjectVersion>
+    <DockerTargetOS>Linux</DockerTargetOS>
+    <DockerPublishLocally>False</DockerPublishLocally>
+    <ProjectGuid>54485364-f735-4560-b3f1-bf423a94b687</ProjectGuid>
+    <DockerComposeEnvFilePath>envs/.env</DockerComposeEnvFilePath>
+    <DockerComposeProjectName>expi40-service-network</DockerComposeProjectName>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="**" />
+  </ItemGroup>
+</Project>

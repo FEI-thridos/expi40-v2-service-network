@@ -1,0 +1,19 @@
+.:53 {
+    forward . 8.8.8.8 8.8.4.4
+    log
+    errors
+}
+expi40.duckdns.org {
+    hosts {
+		192.168.0.134 auth.expi40.duckdns.org
+		192.168.0.134 aas.expi40.duckdns.org
+		192.168.0.134 aas-registry.expi40.duckdns.org
+		192.168.0.134 sm-registry.expi40.duckdns.org
+		192.168.0.134 discovery.expi40.duckdns.org
+		192.168.0.134 ui.expi40.duckdns.org
+		192.168.0.134 dashboard.expi40.duckdns.org
+		192.168.0.134 llmchat.expi40.duckdns.org
+    }
+	log
+    errors
+}

@@ -1,0 +1,34 @@
+{
+  "id": "${KEYCLOAK_REALM}",
+  "realm": "${KEYCLOAK_REALM}",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "${KEYCLOAK_CLIENT_ID}",
+      "rootUrl": "https://ui.${DUCKDNS_SUBDOMAIN}.duckdns.org",
+      "redirectUris": ["https://ui.${DUCKDNS_SUBDOMAIN}.duckdns.org/*"],
+      "webOrigins": ["https://ui.${DUCKDNS_SUBDOMAIN}.duckdns.org"],
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "protocol": "openid-connect",
+      "enabled": true
+    }
+  ],
+  "users": [
+    {
+      "username": "${KEYCLOAK_TEST_USER}",
+      "email": "testuser@test.mail",
+      "firstName": "Test",
+      "lastName": "User",
+      "enabled": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${KEYCLOAK_TEST_USER_PASSWORD}",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}

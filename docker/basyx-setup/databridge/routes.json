@@ -1,0 +1,69 @@
+[
+  {
+    "datasource": "PlcTopicConsumer",
+    "transformers": [
+      "Conveyor1RunningTransformer"
+      //"Conveyor2RunningTransformer",
+      //"Conveyor3RunningTransformer",
+      //"Conveyor4RunningTransformer",
+      //"Mixer1RunningTransformer",
+      //"Mixer2RunningTransformer",
+      //"Slider1ForwardTransformer",
+      //"Slider1BackwardTransformer",
+      //"Slider2ForwardTransformer",
+      //"Slider2BackwardTransformer",
+      //"OptoGate1HitTransformer",
+      //"OptoGate2HitTransformer",
+      //"OptoGate3HitTransformer",
+      //"OptoGate4HitTransformer",
+      //"OptoGate5HitTransformer",
+      //"Stopper1HitTransformer",
+      //"Stopper2HitTransformer",
+      //"Stopper3HitTransformer",
+      //"Stopper4HitTransformer"
+    ],
+    "datasinks": [
+      "Conveyor1Running"
+      //"Conveyor2Running",
+      //"Conveyor3Running",
+      //"Conveyor4Running",
+      //"Mixer1Running",
+      //"Mixer2Running",
+      //"Slider1Forward",
+      //"Slider1Backward",
+      //"Slider2Forward",
+      //"Slider2Backward",
+      //"OptoGate1Hit",
+      //"OptoGate2Hit",
+      //"OptoGate3Hit",
+      //"OptoGate4Hit",
+      //"OptoGate5Hit",
+      //"Stopper1Hit",
+      //"Stopper2Hit",
+      //"Stopper3Hit",
+      //"Stopper4Hit"
+    ],
+    "datasinkMappingConfiguration": {
+      "Conveyor1Running": [ "Conveyor1RunningTransformer" ]
+      //"Conveyor2Running": [ "Conveyor2RunningTransformer" ],
+      //"Conveyor3Running": [ "Conveyor3RunningTransformer" ],
+      //"Conveyor4Running": [ "Conveyor4RunningTransformer" ],
+      //"Mixer1Running": [ "Mixer1RunningTransformer" ],
+      //"Mixer2Running": [ "Mixer2RunningTransformer" ],
+      //"Slider1Forward": [ "Slider1ForwardTransformer" ],
+      //"Slider1Backward": [ "Slider1BackwardTransformer" ],
+      //"Slider2Forward": [ "Slider2ForwardTransformer" ],
+      //"Slider2Backward": [ "Slider2BackwardTransformer" ],
+      //"OptoGate1Hit": [ "OptoGate1HitTransformer" ],
+      //"OptoGate2Hit": [ "OptoGate2HitTransformer" ],
+      //"OptoGate3Hit": [ "OptoGate3HitTransformer" ],
+      //"OptoGate4Hit": [ "OptoGate4HitTransformer" ],
+      //"OptoGate5Hit": [ "OptoGate5HitTransformer" ],
+      //"Stopper1Hit": [ "Stopper1HitTransformer" ],
+      //"Stopper2Hit": [ "Stopper2HitTransformer" ],
+      //"Stopper3Hit": [ "Stopper3HitTransformer" ],
+      //"Stopper4Hit": [ "Stopper4HitTransformer" ]
+    },
+    "trigger": "event"
+  }
+]

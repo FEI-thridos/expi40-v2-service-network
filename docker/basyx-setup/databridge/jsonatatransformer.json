@@ -1,0 +1,116 @@
+[
+  {
+    "uniqueId": "Conveyor1RunningTransformer",
+    "queryPath": "transformers/Conveyor1RunningTransformer.jsonata",
+    "inputType": "JsonString",
+    "outputType": "JsonString"
+  },
+  {
+    "uniqueId": "Conveyor2RunningTransformer",
+    "queryPath": "transformers/Conveyor2RunningTransformer.jsonata",
+    "inputType": "JsonString",
+    "outputType": "JsonString"
+  },
+  {
+    "uniqueId": "Conveyor3RunningTransformer",
+    "queryPath": "transformers/Conveyor3RunningTransformer.jsonata",
+    "inputType": "JsonString",
+    "outputType": "JsonString"
+  },
+  {
+    "uniqueId": "Conveyor4RunningTransformer",
+    "queryPath": "transformers/Conveyor4RunningTransformer.jsonata",
+    "inputType": "JsonString",
+    "outputType": "JsonString"
+  },
+  {
+    "uniqueId": "Mixer1RunningTransformer",
+    "queryPath": "transformers/Mixer1RunningTransformer.jsonata",
+    "inputType": "JsonString",
+    "outputType": "JsonString"
+  },
+  {
+    "uniqueId": "Mixer2RunningTransformer",
+    "queryPath": "transformers/Mixer2RunningTransformer.jsonata",
+    "inputType": "JsonString",
+    "outputType": "JsonString"
+  },
+  {
+    "uniqueId": "Slider1ForwardTransformer",
+    "queryPath": "transformers/Slider1ForwardTransformer.jsonata",
+    "inputType": "JsonString",
+    "outputType": "JsonString"
+  },
+  {
+    "uniqueId": "Slider1BackwardTransformer",
+    "queryPath": "transformers/Slider1BackwardTransformer.jsonata",
+    "inputType": "JsonString",
+    "outputType": "JsonString"
+  },
+  {
+    "uniqueId": "Slider2ForwardTransformer",
+    "queryPath": "transformers/Slider2ForwardTransformer.jsonata",
+    "inputType": "JsonString",
+    "outputType": "JsonString"
+  },
+  {
+    "uniqueId": "Slider2BackwardTransformer",
+    "queryPath": "transformers/Slider2BackwardTransformer.jsonata",
+    "inputType": "JsonString",
+    "outputType": "JsonString"
+  },
+  {
+    "uniqueId": "OptoGate1HitTransformer",
+    "queryPath": "transformers/OptoGate1HitTransformer.jsonata",
+    "inputType": "JsonString",
+    "outputType": "JsonString"
+  },
+  {
+    "uniqueId": "OptoGate2HitTransformer",
+    "queryPath": "transformers/OptoGate2HitTransformer.jsonata",
+    "inputType": "JsonString",
+    "outputType": "JsonString"
+  },
+  {
+    "uniqueId": "OptoGate3HitTransformer",
+    "queryPath": "transformers/OptoGate3HitTransformer.jsonata",
+    "inputType": "JsonString",
+    "outputType": "JsonString"
+  },
+  {
+    "uniqueId": "OptoGate4HitTransformer",
+    "queryPath": "transformers/OptoGate4HitTransformer.jsonata",
+    "inputType": "JsonString",
+    "outputType": "JsonString"
+  },
+  {
+    "uniqueId": "OptoGate5HitTransformer",
+    "queryPath": "transformers/OptoGate5HitTransformer.jsonata",
+    "inputType": "JsonString",
+    "outputType": "JsonString"
+  },
+  {
+    "uniqueId": "Stopper1HitTransformer",
+    "queryPath": "transformers/Stopper1HitTransformer.jsonata",
+    "inputType": "JsonString",
+    "outputType": "JsonString"
+  },
+  {
+    "uniqueId": "Stopper2HitTransformer",
+    "queryPath": "transformers/Stopper2HitTransformer.jsonata",
+    "inputType": "JsonString",
+    "outputType": "JsonString"
+  },
+  {
+    "uniqueId": "Stopper3HitTransformer",
+    "queryPath": "transformers/Stopper3HitTransformer.jsonata",
+    "inputType": "JsonString",
+    "outputType": "JsonString"
+  },
+  {
+    "uniqueId": "Stopper4HitTransformer",
+    "queryPath": "transformers/Stopper4HitTransformer.jsonata",
+    "inputType": "JsonString",
+    "outputType": "JsonString"
+  }
+]

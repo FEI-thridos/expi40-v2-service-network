@@ -1,0 +1,15 @@
+server:
+  port: '8085'
+spring:
+  data:
+    mongodb:
+      host: ${DB_HOST:mongo}
+      database: ${DB_NAME:aas-dashboard}
+      authentication-database: admin
+      username: ${DB_USERNAME:${MONGO_USER}}
+      password: ${DB_PASSWORD:${MONGO_PASSWORD}}
+basyx:
+  cors:
+    allowed-origins: '*'
+    allowed-methods: GET,POST,PATCH,DELETE,PUT,OPTIONS,HEAD
+  externalurl: https://dashboard.${DUCKDNS_SUBDOMAIN}.duckdns.org

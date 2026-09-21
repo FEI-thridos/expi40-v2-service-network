@@ -1,0 +1,67 @@
+{
+  "@context": [
+    "https://www.w3.org/2019/wot/td/v1",
+    {
+      "mqv": "http://www.example.org/2024/mqtt-binding#",
+      "opc": "https://example.com/2025/wot/opcua#"
+    }
+  ],
+  "title": "ThingDescriptionAssetInterfaceDescription",
+  "id": "www.example.com/ids/sm/XXXX_XXXX_XXXX_XXXX",
+  "version": { 
+  	"instance": "1.0" 
+  },
+  "description": "Description of interface to interact with asset according to Thing Description.",
+  "securityDefinitions": {
+    "auto_sc": { "scheme": "auto" }
+  },
+  "properties": {
+    "is-hit": {
+      "title": "Is Hit",
+      "description": "Boolean value of sensor indicating whether the sensor was triggered.",
+      "type": "boolean",
+      "observable": false,
+
+      "forms": [
+		{
+          "href": "opc.tcp://192.168.0.101:1885",
+          "op": ["writeproperty"],
+          "contentType": "application/opcua+json",
+
+          "opc:serverInterface": "PlcOpcUaServer",
+          "opc:nodeId": "ns=4;i=5",
+          "opc:publishingInterval": "100",
+          "opc:securityPolicy": "None",
+          "opc:userTokenType": "Anonymous",
+
+          "description": "Writes the sensor value from virtual entity directly to the Node of PLC OPC UA server. Used by Unity server instance.",
+          "security": "auto_sc"
+        }
+      ]
+    }
+  },
+  "events": {
+	"is-hit": {
+      "title": "Is Hit",
+      "description": "Boolean value of sensor from PLC communicated via OPC UA PubSub.",
+      "data": {
+        "type": "boolean"
+      },
+
+      "forms": [
+        {
+          "href": "mqtt://localhost:1883",
+          "op": ["subscribeevent", "unsubscribeevent"],          
+          "contentType": "application/json",
+
+          "mqv:controlPacket": "subscribe",
+          "mqv:topic": "plc/digital-input",
+          "mqv:messageFilter": "Messages[0].Payload.PublishedDataSet1[0].Body",
+
+          "description": "Definition of MQTT subsciption (topic and message filter) for 'is-hit' property. Used by Unity client instances.",
+          "security": "auto_sc"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,8 @@
+basyx:
+  cors:
+    allowed-origins: '*'
+    allowed-methods: GET,POST,PATCH,DELETE,PUT,OPTIONS,HEAD
+spring:
+  data:
+    mongodb:
+      uri: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongo:${MONGO_PORT}

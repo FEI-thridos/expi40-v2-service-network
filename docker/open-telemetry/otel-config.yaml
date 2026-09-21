@@ -1,0 +1,43 @@
+# otel-config.yaml
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: "0.0.0.0:4318"  # Receive OTLP over HTTP
+      grpc:
+        endpoint: "0.0.0.0:4317"  # Receive OTLP over gRPC
+
+processors:
+  batch:  # Batch telemetry before exporting
+    timeout: 1s
+  memory_limiter:
+    check_interval: 5s
+    limit_percentage: 80
+    spike_limit_percentage: 25
+
+exporters:
+  otlp:
+    endpoint: "jaeger:4317"
+    tls:
+      insecure: true
+  otlphttp/prometheus:
+    endpoint: "http://prometheus:9090/api/v1/otlp"
+    tls:
+      insecure: true
+  file:  # Save to file
+    path: /var/log/otel/otel-log.json
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp, file]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp/prometheus, file]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [file]

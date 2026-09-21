@@ -1,0 +1,116 @@
+[
+  {
+    "uniqueId": "Conveyor1Running",
+    "submodelEndpoint": "http://aas-env:8081/submodels/d3d3LmV4YW1wbGUuY29tL2lkcy9zbS8wMDY0XzYxMzBfMjE1Ml84ODE5",
+    "idShortPath": "Running",
+    "api": "DotAAS-V3"
+  },
+  {
+    "uniqueId": "Conveyor2Running",
+    "submodelEndpoint": "**Conveyor2.OperationalDataSM**",
+    "idShortPath": "Running",
+    "api": "DotAAS-V3"
+  },
+  {
+    "uniqueId": "Conveyor3Running",
+    "submodelEndpoint": "**Conveyor3.OperationalDataSM**",
+    "idShortPath": "Running",
+    "api": "DotAAS-V3"
+  },
+  {
+    "uniqueId": "Conveyor4Running",
+    "submodelEndpoint": "**Conveyor4.OperationalDataSM**",
+    "idShortPath": "Running",
+    "api": "DotAAS-V3"
+  },
+  {
+    "uniqueId": "Mixer1Running",
+    "submodelEndpoint": "**Mixer1.OperationalDataSM**",
+    "idShortPath": "Running",
+    "api": "DotAAS-V3"
+  },
+  {
+    "uniqueId": "Mixer2Running",
+    "submodelEndpoint": "**Mixer2.OperationalDataSM**",
+    "idShortPath": "Running",
+    "api": "DotAAS-V3"
+  },
+  {
+    "uniqueId": "Slider1Forward",
+    "submodelEndpoint": "**Slider1.OperationalDataSM**",
+    "idShortPath": "Forward",
+    "api": "DotAAS-V3"
+  },
+  {
+    "uniqueId": "Slider1Backward",
+    "submodelEndpoint": "**Slider1.OperationalDataSM**",
+    "idShortPath": "Backward",
+    "api": "DotAAS-V3"
+  },
+  {
+    "uniqueId": "Slider2Forward",
+    "submodelEndpoint": "**Slider2.OperationalDataSM**",
+    "idShortPath": "Forward",
+    "api": "DotAAS-V3"
+  },
+  {
+    "uniqueId": "Slider2Backward",
+    "submodelEndpoint": "**Slider2.OperationalDataSM**",
+    "idShortPath": "Backward",
+    "api": "DotAAS-V3"
+  },
+  {
+    "uniqueId": "OptoGate1Hit",
+    "submodelEndpoint": "**OptoGate1.OperationalDataSM**",
+    "idShortPath": "Hit",
+    "api": "DotAAS-V3"
+  },
+  {
+    "uniqueId": "OptoGate2Hit",
+    "submodelEndpoint": "**OptoGate2.OperationalDataSM**",
+    "idShortPath": "Hit",
+    "api": "DotAAS-V3"
+  },
+  {
+    "uniqueId": "OptoGate3Hit",
+    "submodelEndpoint": "**OptoGate3.OperationalDataSM**",
+    "idShortPath": "Hit",
+    "api": "DotAAS-V3"
+  },
+  {
+    "uniqueId": "OptoGate4Hit",
+    "submodelEndpoint": "**OptoGate4.OperationalDataSM**",
+    "idShortPath": "Hit",
+    "api": "DotAAS-V3"
+  },
+  {
+    "uniqueId": "OptoGate5Hit",
+    "submodelEndpoint": "**OptoGate5.OperationalDataSM**",
+    "idShortPath": "Hit",
+    "api": "DotAAS-V3"
+  },
+  {
+    "uniqueId": "Stopper1Hit",
+    "submodelEndpoint": "**Stopper1.OperationalDataSM**",
+    "idShortPath": "Hit",
+    "api": "DotAAS-V3"
+  },
+  {
+    "uniqueId": "Stopper2Hit",
+    "submodelEndpoint": "**Stopper2.OperationalDataSM**",
+    "idShortPath": "Hit",
+    "api": "DotAAS-V3"
+  },
+  {
+    "uniqueId": "Stopper3Hit",
+    "submodelEndpoint": "**Stopper3.OperationalDataSM**",
+    "idShortPath": "Hit",
+    "api": "DotAAS-V3"
+  },
+  {
+    "uniqueId": "Stopper4Hit",
+    "submodelEndpoint": "**Stopper4.OperationalDataSM**",
+    "idShortPath": "Hit",
+    "api": "DotAAS-V3"
+  }
+]

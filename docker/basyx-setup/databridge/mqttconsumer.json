@@ -1,0 +1,12 @@
+[
+  {
+    "uniqueId": "PlcTopicConsumer",
+    "serverUrl": "mosquitto",
+    "serverPort": 1883,
+    "topic": "plc",
+    "credentials": {
+      "userName": "adminUser",
+      "password": "adminP4ssword."
+    }
+  }
+]

@@ -1,0 +1,34 @@
+{
+  "id": "myrealm",
+  "realm": "myrealm",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "myapp",
+      "rootUrl": "https://ui.expi40.duckdns.org",
+      "redirectUris": ["https://ui.expi40.duckdns.org/*"],
+      "webOrigins": ["https://ui.expi40.duckdns.org"],
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "protocol": "openid-connect",
+      "enabled": true
+    }
+  ],
+  "users": [
+    {
+      "username": "myuser",
+      "email": "testuser@test.mail",
+      "firstName": "Test",
+      "lastName": "User",
+      "enabled": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "mypassword",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}

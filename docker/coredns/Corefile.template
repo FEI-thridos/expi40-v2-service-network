@@ -1,0 +1,19 @@
+.:53 {
+    forward . 8.8.8.8 8.8.4.4
+    log
+    errors
+}
+${DUCKDNS_SUBDOMAIN}.duckdns.org {
+    hosts {
+		${HOST_IP} auth.${DUCKDNS_SUBDOMAIN}.duckdns.org
+		${HOST_IP} aas.${DUCKDNS_SUBDOMAIN}.duckdns.org
+		${HOST_IP} aas-registry.${DUCKDNS_SUBDOMAIN}.duckdns.org
+		${HOST_IP} sm-registry.${DUCKDNS_SUBDOMAIN}.duckdns.org
+		${HOST_IP} discovery.${DUCKDNS_SUBDOMAIN}.duckdns.org
+		${HOST_IP} ui.${DUCKDNS_SUBDOMAIN}.duckdns.org
+		${HOST_IP} dashboard.${DUCKDNS_SUBDOMAIN}.duckdns.org
+		${HOST_IP} llmchat.${DUCKDNS_SUBDOMAIN}.duckdns.org
+    }
+	log
+    errors
+}
